@@ -1,0 +1,37 @@
+colab读取google drive的文件
+colab reads files from google drive
+
+
+When using colab to train a deep learning model, you need to read in the locally collected data set. At this time, 
+you can upload the data set to google drive cloud hard disk first,
+and then read the data set (text, picture, data table, etc.) of google drive in the notebook of colab. Colab is similar to a linux server. 
+To use google drive, you need to hang the drive on the host.
+
+At this time, the following three steps are required:
+
+1. First, let colab obtain the authorization of google drive, and execute the following code in google colab:
+
+!apt-get install -y -qq software-properties-common python-software-properties module-init-tools
+!add-apt-repository -y ppa:alessandro-strada/ppa 2>&1 > /dev/null
+!apt-get update -qq 2>&1 > /dev/null
+!apt-get -y install -qq google-drive-ocamlfuse fuse
+from google.colab import auth
+auth.authenticate_user()
+from oauth2client.client import GoogleCredentials
+creds = GoogleCredentials.get_application_default()
+import getpass
+!google-drive-ocamlfuse -headless -id={creds.client_id} -secret={creds.client_secret} < /dev/null 2>&1 | grep URL
+vcode = getpass.getpass()
+!echo {vcode} | google-drive-ocamlfuse -headless -id={creds.client_id} -secret={creds.client_secret}
+
+
+2. Specify the root directory of Google Drive, named drive
+
+!mkdir -p drive
+!google-drive-ocamlfuse drive # 此时colab中出现drive的文件夹，里面就是你的google drive的根目录文件
+
+3. Then change the working folder of execution, the data set is in this folder, and it can be used directly in the notebook
+
+import os
+os.chdir("drive/Colab Notebooks")
+
